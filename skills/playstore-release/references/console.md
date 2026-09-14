@@ -8,24 +8,24 @@ Replace `<dev>` and `<app>` with `config.console.developerId` and `config.consol
 
 <!-- generated:start -->
 
-| key                 | step                                                    | detectable by the API          | answers come from                                                                                                            |
-| ------------------- | ------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `app`               | Create the app in the Play Console                      | yes                            | `listing.title`, `defaultLanguage`, `console.pricing`                                                                        |
-| `serviceAccount`    | Invite the service account and grant it app permissions | yes                            | —                                                                                                                            |
-| `firstBundle`       | Upload the first .aab through the Console               | yes                            | `bundle.path`                                                                                                                |
-| `privacyPolicy`     | Privacy policy URL                                      | no — mark it in `console.done` | `console.privacyPolicyUrl`                                                                                                   |
-| `appAccess`         | App access (demo login for reviewers)                   | no — mark it in `console.done` | `console.appAccess.restricted`, `console.appAccess.username`, `console.appAccess.password`, `console.appAccess.instructions` |
-| `ads`               | Ads declaration                                         | no — mark it in `console.done` | `console.ads`                                                                                                                |
-| `contentRating`     | Content rating questionnaire (IARC)                     | no — mark it in `console.done` | `console.contentRating`                                                                                                      |
-| `targetAudience`    | Target audience and content                             | no — mark it in `console.done` | `console.targetAudience`                                                                                                     |
-| `news`              | News app declaration                                    | no — mark it in `console.done` | `console.containsNews`                                                                                                       |
-| `dataSafety`        | Data safety                                             | no — mark it in `console.done` | `dataSafety.csvPath`                                                                                                         |
-| `government`        | Government app declaration                              | no — mark it in `console.done` | `console.isGovernmentApp`                                                                                                    |
-| `financialFeatures` | Financial features declaration                          | no — mark it in `console.done` | `console.financialFeatures`                                                                                                  |
-| `health`            | Health apps declaration                                 | no — mark it in `console.done` | `console.healthApp`                                                                                                          |
-| `category`          | App category and tags                                   | no — mark it in `console.done` | `console.category`, `console.tags`                                                                                           |
-| `countries`         | Countries / regions for production                      | no — mark it in `console.done` | `console.countries`                                                                                                          |
-| `pricing`           | Pricing (free / paid)                                   | no — mark it in `console.done` | `console.pricing`                                                                                                            |
+| key | step | detectable by the API | answers come from |
+| --- | --- | --- | --- |
+| `app` | Create the app in the Play Console | yes | `listing.title`, `defaultLanguage`, `console.pricing` |
+| `serviceAccount` | Invite the service account and grant it app permissions | yes | — |
+| `firstBundle` | Upload the first .aab through the Console | yes | `bundle.path` |
+| `privacyPolicy` | Privacy policy URL | no — mark it in `console.done` | `console.privacyPolicyUrl` |
+| `appAccess` | App access (demo login for reviewers) | no — mark it in `console.done` | `console.appAccess.restricted`, `console.appAccess.username`, `console.appAccess.password`, `console.appAccess.instructions` |
+| `ads` | Ads declaration | no — mark it in `console.done` | `console.ads` |
+| `contentRating` | Content rating questionnaire (IARC) | no — mark it in `console.done` | `console.contentRating` |
+| `targetAudience` | Target audience and content | no — mark it in `console.done` | `console.targetAudience` |
+| `news` | News app declaration | no — mark it in `console.done` | `console.containsNews` |
+| `dataSafety` | Data safety | no — mark it in `console.done` | `dataSafety.csvPath` |
+| `government` | Government app declaration | no — mark it in `console.done` | `console.isGovernmentApp` |
+| `financialFeatures` | Financial features declaration | no — mark it in `console.done` | `console.financialFeatures` |
+| `health` | Health apps declaration | no — mark it in `console.done` | `console.healthApp` |
+| `category` | App category and tags | no — mark it in `console.done` | `console.category`, `console.tags` |
+| `countries` | Countries / regions for production | no — mark it in `console.done` | `console.countries` |
+| `pricing` | Pricing (free / paid) | no — mark it in `console.done` | `console.pricing` |
 
 ### app
 
