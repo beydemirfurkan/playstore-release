@@ -187,3 +187,19 @@ test("operations with edit: false never open an edit", async () => {
   assert.equal(again.status, Status.OK);
   assert.equal(mock.mutations().length, 0);
 });
+
+test("before any bundle exists, publish still commits the listing and release is SKIPPED", async () => {
+  const { ctx, mock } = await ctxFor(
+    readyToPublishRoutes({
+      bundles: [],
+      tracks: [{ track: "internal", releases: [] }],
+      listing: { language: "tr-TR", title: "Test App" },
+      details: { defaultLanguage: "tr-TR" },
+    }),
+  );
+  const { results } = await runPipeline(["details", "listing", "release"], ctx);
+  assert.equal(results.find((r) => r.id === "release").status, Status.SKIPPED);
+  assert.equal(results.find((r) => r.id === "listing").status, Status.CHANGED);
+  assert.equal(results.find((r) => r.id === "edit").status, Status.CHANGED, "the listing still reaches Play");
+  assert.equal(mock.commits().length, 1);
+});

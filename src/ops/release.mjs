@@ -4,7 +4,7 @@
 // outside the rollout keep getting the previous version.
 
 import { Status } from "../core/status.mjs";
-import { finding, Category, FixOwner } from "../core/findings.mjs";
+import { finding, Severity, Category, FixOwner } from "../core/findings.mjs";
 import { resolveLocales } from "../core/locales.mjs";
 
 /** @type {import("./registry.mjs").OperationMeta} */
@@ -40,17 +40,21 @@ export async function run(ctx, args = {}) {
 
   const versionCode = args.versionCode ?? edit.notes.versionCode ?? (await newestUploaded(edit));
   if (versionCode == null) {
+    // Not an error: before the first bundle exists the listing, graphics and
+    // details are still worth committing. An ERROR here would discard them all.
     return {
-      status: Status.ERROR,
-      message: "no versionCode to release — upload a bundle first",
+      status: Status.SKIPPED,
+      message: "no bundle on Play yet — nothing to release (the listing is still written)",
       findings: [
         finding({
           id: "bundle.none",
+          severity: Severity.WARNING,
           category: Category.BINARY,
           title: "No bundle to release",
           detail: "Play holds no bundle for this app and none was uploaded in this edit.",
           fixOwner: FixOwner.EXTERNAL,
-          fix: "Upload one (playstore-release upload-bundle --file app.aab, or let CI publish to internal).",
+          fix: "Upload the first .aab through the Play Console, then re-run release (or publish).",
+          docs: "references/console.md#firstbundle",
         }),
       ],
     };
