@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm run schema:validate
+      - run: npm run manifests:check
+      - run: node scripts/render-console.mjs --check
+      - run: npm run check:dist
+      - run: npm test
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No secret-shaped file may be committed
+        run: |
+          found=$(git ls-files | grep -Ei 'service-account.*\.json$|\.jks$|\.keystore$|^secrets/|playstore\.config\.json$|^\.env' || true)
+          if [ -n "$found" ]; then echo "✗ these must never be committed:"; echo "$found"; exit 1; fi
+          echo "✓ no secrets in the tree"
+
+  clone-and-run:
+    # The distribution story is "clone it and run it": a fresh checkout with no
+    # node_modules at all.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: The CLI runs from a bare checkout
+        run: |
+          test ! -d node_modules
+          node src/cli.mjs --version
+          node src/cli.mjs schema > /dev/null
+          mkdir /tmp/app && cd /tmp/app
+          node "$GITHUB_WORKSPACE/src/cli.mjs" init
+          node "$GITHUB_WORKSPACE/src/cli.mjs" validate
+      - name: The MCP server answers over stdio from a bare checkout
+        run: |
+          printf '%s\n%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | node src/mcp/server.mjs > /tmp/mcp.out
+          node -e '
+            const lines = require("fs").readFileSync("/tmp/mcp.out","utf8").trim().split("\n").map(JSON.parse);
+            const tools = lines.find(m => m.id === 2).result.tools;
+            if (tools.length !== 10) { console.error("expected 10 tools, got " + tools.length); process.exit(1) }
+            console.log("✓ " + tools.length + " tools over stdio, nothing installed");
+          '

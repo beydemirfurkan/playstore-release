@@ -1,0 +1,21 @@
+# Secrets — never commit
+*service-account*.json
+*-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f].json
+*.jks
+*.keystore
+secrets/
+.env
+
+# A user's filled config carries demo-account credentials for App access — keep the template only
+playstore.config.json
+.playstore-release/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+
+# Build / tooling
+types/
+*.tgz

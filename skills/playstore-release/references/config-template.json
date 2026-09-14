@@ -1,0 +1,62 @@
+{
+  "$schema": "https://beydemirfurkan.github.io/playstore-release/schemas/v1/config.schema.json",
+  "$comment": "Per-app Google Play content. Copy, fill in, and point PLAYSTORE_CONFIG at it (or name it playstore.config.json). Credentials come from PLAY_SERVICE_ACCOUNT_JSON. Relative paths resolve against this file's directory. Everything under `console` is only rendered into the checklist of Console-only steps — never sent to the API.",
+  "packageName": "com.example.app",
+  "defaultLanguage": "en-US",
+  "listing": {
+    "title": "App Name",
+    "shortDescription": "One line under the name, 80 characters at most.",
+    "fullDescription": "The full description. Up to 4000 characters. Plain paragraphs work best; emoji are accepted.",
+    "releaseNotes": "What changed in this release — written onto the track release, 500 characters at most."
+  },
+  "locales": {
+    "tr-TR": {
+      "title": "Uygulama Adı",
+      "shortDescription": "Adın altındaki tek satır.",
+      "fullDescription": "Tam açıklama.",
+      "releaseNotes": "Bu sürümde değişenler."
+    }
+  },
+  "details": {
+    "contactEmail": "support@example.com",
+    "contactWebsite": "https://example.com"
+  },
+  "bundle": {
+    "$comment": "Where the signed .aab is. Omit when CI uploads it (Codemagic / GitHub Actions publishing to internal).",
+    "dir": "./build"
+  },
+  "images": {
+    "$comment": "icon.png (512×512), feature-graphic.png (1024×500, no alpha), phone/ (2–8 shots, 320–3840 px, long side ≤ 2× short side). Optional tablet-7/ and tablet-10/. A language subdirectory (phone/tr-TR/) overrides the base for that language.",
+    "dir": "./images"
+  },
+  "release": {
+    "$comment": "Where `publish` releases the uploaded bundle. Production is reached with `promote`, never here.",
+    "track": "internal",
+    "status": "completed"
+  },
+  "console": {
+    "$comment": "Answers for the Play Console forms Google exposes no API for. `check` lists each one until its key is in `done`.",
+    "category": "Business",
+    "pricing": "free",
+    "countries": "all",
+    "privacyPolicyUrl": "https://example.com/privacy",
+    "appAccess": {
+      "restricted": true,
+      "username": "reviewer@example.com",
+      "password": "",
+      "instructions": "Sign in with the reviewer account. All features are available after login."
+    },
+    "ads": false,
+    "contentRating": {
+      "email": "support@example.com",
+      "category": "Utility, productivity, communication or other",
+      "notes": "No violence, sexuality, language, controlled substances or gambling. No user-generated content. Personal information: none shared."
+    },
+    "targetAudience": ["18+"],
+    "containsNews": false,
+    "isGovernmentApp": false,
+    "financialFeatures": [],
+    "healthApp": false,
+    "done": []
+  }
+}

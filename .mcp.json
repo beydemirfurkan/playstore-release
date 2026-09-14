@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "playstore-release": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/src/mcp/server.mjs"],
+      "env": {
+        "PLAY_SERVICE_ACCOUNT_JSON": "${PLAY_SERVICE_ACCOUNT_JSON}",
+        "PLAY_PACKAGE_NAME": "${PLAY_PACKAGE_NAME}",
+        "PLAYSTORE_CONFIG": "${PLAYSTORE_CONFIG}"
+      }
+    }
+  }
+}

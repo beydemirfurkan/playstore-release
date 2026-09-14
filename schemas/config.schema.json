@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beydemirfurkan.github.io/playstore-release/schemas/v1/config.schema.json",
+  "title": "playstore-release config",
+  "description": "Per-app Google Play listing content. Credentials are NOT here — they come from the environment (PLAY_SERVICE_ACCOUNT_JSON: a path, inline JSON or base64) and the package name from PLAY_PACKAGE_NAME or config.packageName. Relative paths resolve against this file's directory. Keys under `console` are never sent to the API: they only feed the checklist of steps Google exposes in the Play Console alone.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["defaultLanguage"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" },
+    "packageName": {
+      "type": "string",
+      "description": "Android application id, e.g. com.example.app. PLAY_PACKAGE_NAME overrides it.",
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)+$"
+    },
+    "defaultLanguage": {
+      "type": "string",
+      "description": "The Play language this config's shared listing is written in, as Play spells it: en-US, tr-TR, de-DE, es-419.",
+      "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,4})*$"
+    },
+    "listing": {
+      "$ref": "#/$defs/listing",
+      "description": "The listing for defaultLanguage, and the default for every entry in `locales`. Fields shared across languages belong here so they are written once."
+    },
+    "locales": {
+      "type": "object",
+      "description": "Listings keyed by Play language code. Each entry overrides `listing`; anything it omits is inherited. Omit for a single-language app.",
+      "propertyNames": { "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,4})*$" },
+      "additionalProperties": { "$ref": "#/$defs/listing" }
+    },
+    "details": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Store settings → Contact details. contactEmail is required by Play before a listing can go live.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "contactEmail": { "type": "string", "format": "email" },
+        "contactPhone": { "type": "string" },
+        "contactWebsite": { "type": "string", "format": "uri" }
+      }
+    },
+    "bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Where the signed .aab lives. `path` names one file; `dir` means the newest *.aab in that directory. Omit when CI uploads bundles itself.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "path": { "type": "string" },
+        "dir": { "type": "string" },
+        "mapping": {
+          "type": "string",
+          "description": "Optional ProGuard/R8 mapping.txt to upload as the deobfuscation file."
+        }
+      }
+    },
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Store graphics. `dir` is the base: icon.png, feature-graphic.png, phone/, tablet-7/, tablet-10/ inside it are the defaults; each key below overrides one. A language subdirectory (phone/tr-TR/) overrides the base for that language.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "dir": { "type": "string" },
+        "icon": {
+          "type": "string",
+          "description": "512×512 32-bit PNG. Alpha is allowed here (unlike the App Store)."
+        },
+        "featureGraphic": {
+          "type": "string",
+          "description": "1024×500 JPEG or 24-bit PNG, no alpha. Required by Play."
+        },
+        "phoneScreenshots": {
+          "type": "string",
+          "description": "Directory: 2–8 JPEG/PNG, each side 320–3840 px, long side at most 2× the short side."
+        },
+        "sevenInchScreenshots": {
+          "type": "string",
+          "description": "Directory: up to 8 tablet screenshots (optional)."
+        },
+        "tenInchScreenshots": { "type": "string", "description": "Directory: up to 8 tablet screenshots (optional)." }
+      }
+    },
+    "release": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Where and how the uploaded bundle is released by `publish`. Production promotion is a separate, irreversible operation (`promote`).",
+      "properties": {
+        "$comment": { "type": "string" },
+        "track": {
+          "type": "string",
+          "description": "internal, alpha (closed testing), beta (open testing), production, or the name of a custom closed track.",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "inProgress", "halted", "completed"],
+          "description": "completed = live for everyone on the track; inProgress = staged (needs userFraction); draft = uploaded, not served."
+        },
+        "userFraction": {
+          "type": "number",
+          "description": "Staged rollout share, strictly between 0 and 1. Only valid with status inProgress.",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "inAppUpdatePriority": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "changesNotSentForReview": {
+          "type": "boolean",
+          "description": "Commit the edit without sending it for review. Only meaningful for an app that has already passed review once."
+        },
+        "name": { "type": "string", "description": "Release name shown in the Console; defaults to the versionName." }
+      }
+    },
+    "testers": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Google Groups (email addresses) allowed on each testing track.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "internal": { "type": "array", "items": { "type": "string", "format": "email" } },
+        "alpha": { "type": "array", "items": { "type": "string", "format": "email" } },
+        "beta": { "type": "array", "items": { "type": "string", "format": "email" } }
+      }
+    },
+    "dataSafety": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The Data safety questionnaire as the CSV the Play Console exports. Filled in once in the Console, exported, and re-applied by the API on every later release.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "csvPath": { "type": "string" }
+      }
+    },
+    "subscriptions": {
+      "type": "array",
+      "description": "Omit when the app sells nothing. Each entry is created or updated, then its base plan activated.",
+      "items": { "$ref": "#/$defs/subscription" }
+    },
+    "console": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Answers to the Play Console forms Google exposes no API for. Never sent anywhere; rendered into the checklist and references/console.md so a person or a browser agent can fill them in. `done` records which steps are finished.",
+      "properties": {
+        "$comment": { "type": "string" },
+        "developerId": {
+          "type": "string",
+          "description": "The developer id from the Play Console URL, to render deep links."
+        },
+        "appId": {
+          "type": "string",
+          "description": "The app's numeric id from the Play Console URL, to render deep links."
+        },
+        "category": {
+          "type": "string",
+          "description": "Store settings → App category, e.g. Business, Productivity, Finance."
+        },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "pricing": {
+          "type": "string",
+          "enum": ["free", "paid"],
+          "description": "Free cannot be changed to paid later."
+        },
+        "countries": {
+          "description": "\"all\", or a list of ISO 3166-1 alpha-2 codes.",
+          "oneOf": [
+            { "type": "string", "const": "all" },
+            { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2}$" } }
+          ]
+        },
+        "privacyPolicyUrl": { "type": "string", "format": "uri" },
+        "appAccess": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "restricted": { "type": "boolean", "description": "true when parts of the app need a login." },
+            "username": { "type": "string" },
+            "password": { "type": "string", "description": "Keep this config out of git if you fill it in." },
+            "instructions": { "type": "string", "maxLength": 1000 }
+          }
+        },
+        "ads": { "type": "boolean", "description": "Does the app show ads?" },
+        "contentRating": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Free-form answers for the IARC questionnaire, echoed into the checklist (email, category, violence, sexuality, language, controlled substances, gambling, user interaction, personal info, location …)."
+        },
+        "targetAudience": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Age groups, e.g. [\"18+\"]. Anything under 13 triggers the Families policy."
+        },
+        "containsNews": { "type": "boolean" },
+        "isGovernmentApp": { "type": "boolean" },
+        "financialFeatures": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Declared financial features, or [] for none. A POS/payments app must answer this form truthfully."
+        },
+        "healthApp": { "type": "boolean" },
+        "done": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Console step keys already completed — see `playstore-release check` for the keys."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "listing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$comment": { "type": "string" },
+        "title": { "type": "string", "maxLength": 30, "description": "App name on Play. 30 characters." },
+        "shortDescription": {
+          "type": "string",
+          "maxLength": 80,
+          "description": "80 characters; shown under the name."
+        },
+        "fullDescription": {
+          "type": "string",
+          "maxLength": 4000,
+          "description": "4000 characters. Emoji are accepted."
+        },
+        "video": { "type": "string", "format": "uri", "description": "A public YouTube URL." },
+        "releaseNotes": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "What's new for this language, 500 characters. Written by `release`."
+        }
+      }
+    },
+    "subscription": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productId", "basePlanId", "billingPeriod"],
+      "properties": {
+        "$comment": { "type": "string" },
+        "productId": { "type": "string", "pattern": "^[a-z0-9_.]+$" },
+        "basePlanId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "billingPeriod": {
+          "type": "string",
+          "pattern": "^P(\\d+W|\\d+M|\\d+Y)$",
+          "description": "ISO 8601: P1W, P1M, P3M, P6M, P1Y."
+        },
+        "gracePeriod": { "type": "string", "pattern": "^P\\d+D$" },
+        "listings": {
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]{2,4})*$" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title"],
+            "properties": {
+              "title": { "type": "string", "maxLength": 55 },
+              "description": { "type": "string", "maxLength": 80 },
+              "benefits": { "type": "array", "items": { "type": "string", "maxLength": 40 }, "maxItems": 4 }
+            }
+          }
+        },
+        "prices": {
+          "type": "object",
+          "description": "Keyed by region code. Everything not listed is derived from the first region by Play.",
+          "propertyNames": { "pattern": "^[A-Z]{2}$" },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["currencyCode", "units"],
+            "properties": {
+              "currencyCode": { "type": "string", "pattern": "^[A-Z]{3}$" },
+              "units": { "type": "integer", "minimum": 0 },
+              "nanos": { "type": "integer", "minimum": 0, "maximum": 999999999 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

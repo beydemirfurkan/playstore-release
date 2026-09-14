@@ -1,0 +1,22 @@
+{
+  "name": "playstore-release",
+  "description": "Ship an Android app to Google Play end-to-end via the Google Play Developer API — an opinionated, idempotent publishing pipeline with a readiness report, for humans and AI agents.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Furkan Beydemir",
+    "url": "https://github.com/beydemirfurkan"
+  },
+  "homepage": "https://github.com/beydemirfurkan/playstore-release",
+  "license": "MIT",
+  "keywords": [
+    "google-play",
+    "play-console",
+    "android",
+    "androidpublisher",
+    "aab",
+    "automation",
+    "mcp",
+    "capacitor",
+    "expo"
+  ]
+}

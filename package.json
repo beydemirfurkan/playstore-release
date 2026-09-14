@@ -1,0 +1,79 @@
+{
+  "name": "playstore-release",
+  "version": "0.1.0",
+  "description": "Ship an Android app to Google Play end-to-end via the Google Play Developer API — an opinionated, idempotent publishing pipeline with a readiness report, for humans and AI agents.",
+  "keywords": [
+    "google-play",
+    "play-console",
+    "android",
+    "androidpublisher",
+    "aab",
+    "release",
+    "automation",
+    "mcp",
+    "mcp-server",
+    "ai-agent",
+    "claude",
+    "capacitor",
+    "expo"
+  ],
+  "homepage": "https://github.com/beydemirfurkan/playstore-release",
+  "bugs": "https://github.com/beydemirfurkan/playstore-release/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beydemirfurkan/playstore-release.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Furkan Beydemir",
+    "url": "https://github.com/beydemirfurkan"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "bin": {
+    "playstore-release": "src/cli.mjs",
+    "playstore-release-mcp": "src/mcp/server.mjs"
+  },
+  "files": [
+    "src",
+    "schemas",
+    "types",
+    "skills",
+    ".claude-plugin",
+    ".mcp.json"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "manifests:sync": "node scripts/sync-manifests.mjs",
+    "manifests:check": "node scripts/sync-manifests.mjs --check",
+    "test": "node --test test/*.test.mjs",
+    "version": "npm run manifests:sync && git add .claude-plugin skills/playstore-release/SKILL.md",
+    "prepack": "npm run manifests:check",
+    "schema:validate": "node scripts/validate-schema.mjs",
+    "verify": "npm run typecheck && npm run format:check && npm run schema:validate && npm run manifests:check && npm run check:dist && npm test",
+    "check:dist": "node scripts/check-distribution.mjs",
+    "install:skill": "node scripts/install-skill.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./src/index.mjs"
+    },
+    "./schema": "./schemas/config.schema.json",
+    "./package.json": "./package.json",
+    "./mcp": "./src/mcp/server.mjs"
+  },
+  "private": true
+}
