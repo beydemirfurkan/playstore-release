@@ -6,6 +6,7 @@ import { validateConfig } from "./core/requirements.mjs";
 import { Status } from "./core/status.mjs";
 import { PlayApiError } from "./play/client.mjs";
 import { withHints } from "./play/hints.mjs";
+import { finding, Category, FixOwner } from "./core/findings.mjs";
 
 export { createContext, isUsable } from "./core/context.mjs";
 export { resolveCredentials, CredentialsError } from "./core/credentials.mjs";
@@ -173,7 +174,40 @@ async function commit(ctx) {
     ctx.log.warn(`edit ${id} left open on request (--keep-edit); it expires on its own`);
     return { outcome: "kept", id };
   }
-  return ctx.edit.commit({ changesNotSentForReview: Boolean(ctx.config?.release?.changesNotSentForReview) });
+  try {
+    return await ctx.edit.commit({ changesNotSentForReview: Boolean(ctx.config?.release?.changesNotSentForReview) });
+  } catch (e) {
+    throw await explainCommitRefusal(ctx, e);
+  }
+}
+
+/**
+ * Google answers validate/commit on an app that has never had a bundle with a
+ * bare 403 "The caller does not have permission" — the same text as a missing
+ * grant. The edit is still open when that happens, so one read tells the two
+ * apart, and the finding names the real cause instead of sending the user to
+ * re-check permissions that are fine.
+ */
+async function explainCommitRefusal(ctx, e) {
+  if (!(e instanceof PlayApiError) || e.status !== 403 || !ctx.edit.id) return e;
+  const bundles = await ctx.edit.get("/bundles", { throwOnError: false });
+  if (bundles.error || (bundles.bundles ?? []).length) return e;
+  e.hints = [
+    finding({
+      id: "bundle.first.console",
+      category: Category.STORE_STATE,
+      title: "The first bundle must be uploaded in the Play Console before any edit can be committed",
+      detail:
+        "Play refuses validate/commit with a 403 until one .aab has gone through the Console — the message is the " +
+        "same as a missing permission, but this app has no bundle at all. Everything written into this edit was discarded.",
+      fixOwner: FixOwner.UI,
+      uiOnly: true,
+      fix: "Upload the .aab once by hand to Internal testing, then re-run publish.",
+      fixClicks: ["Testing", "Internal testing", "Create new release", "Upload"],
+      docs: "references/console.md#firstbundle",
+    }),
+  ];
+  return e;
 }
 
 async function discard(ctx) {

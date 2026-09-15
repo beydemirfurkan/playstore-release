@@ -4,7 +4,7 @@ Every failure mode hit in practice, with the exact text Google sends and what to
 
 ## Access
 
-**The very first bundle must be uploaded in the Console.** `400 … APK/AAB has not been uploaded via console` (wording varies) on `bundles.upload`, or a `404` for the whole app when it exists but holds no bundle. Google's rule: an app becomes API-editable after one bundle has gone through the Console. Upload it once to Internal testing by hand — references/console.md#firstbundle — and never again.
+**The very first bundle must be uploaded in the Console.** Seen in practice (2026-09): on an app created minutes earlier with every permission granted, reads and writes into an edit succeed, and then `edits:validate` / `edits:commit` answer **`403 The caller does not have permission`** — the exact text of a missing grant. It is not a grant problem: Google's rule is that an app becomes API-committable only after one bundle has gone through the Console. `publish` recognises the combination (403 on commit + zero bundles) and reports `bundle.first.console` instead of sending you back to Users and permissions. Upload the .aab once to Internal testing by hand — references/console.md#firstbundle — and never again. Older reports also mention a `400 … has not been uploaded via console` wording on `bundles.upload`.
 
 **403 for up to 24 hours after inviting the service account.** `The caller does not have permission` / `insufficient permissions`. The invitation is accepted instantly; the grant propagates slowly. Re-run `doctor` later. If it persists a day later, the account was invited without app-level permissions — Users and permissions → the account → App permissions.
 

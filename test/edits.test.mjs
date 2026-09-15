@@ -203,3 +203,22 @@ test("before any bundle exists, publish still commits the listing and release is
   assert.equal(results.find((r) => r.id === "edit").status, Status.CHANGED, "the listing still reaches Play");
   assert.equal(mock.commits().length, 1);
 });
+
+test("a 403 on commit for an app with no bundle is explained as the first-bundle rule, not a permission problem", async () => {
+  const routes = readyToPublishRoutes({
+    bundles: [],
+    tracks: [{ track: "internal", releases: [] }],
+    details: { defaultLanguage: "tr-TR" },
+  });
+  routes[
+    `POST ${"https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.example.test"}/edits/:edit:validate`
+  ] = googleError(403, "The caller does not have permission", "PERMISSION_DENIED");
+  const { ctx, mock } = await ctxFor(routes);
+  const { results } = await runPipeline(["details"], ctx);
+  const edit = results.find((r) => r.id === "edit");
+  assert.equal(edit.status, Status.ERROR);
+  assert.equal(edit.findings[0].id, "bundle.first.console");
+  assert.equal(edit.findings[0].uiOnly, true);
+  assert.equal(mock.commits().length, 0);
+  assert.equal(ctx.edit.id, null, "the edit is discarded after the diagnosis");
+});
