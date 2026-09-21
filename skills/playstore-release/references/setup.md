@@ -26,6 +26,7 @@ No IAM role is needed on the Cloud project — permissions are granted inside th
 
 Play Console → **Users and permissions** → **Invite new users** → paste the `client_email` from the JSON → **App permissions** → add the app → tick:
 
+- **Create, edit and delete draft apps** (under _Account permissions_; without it a never-reviewed app refuses listing edits with 403)
 - **Release to testing tracks** (internal/closed/open)
 - **Release to production, exclude devices, and use Play App Signing**
 - **Manage store presence** (listing, graphics, contact details)

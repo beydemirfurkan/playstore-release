@@ -37,7 +37,7 @@ Clicks: **Play Console** → **Create app** → **App name** → **Default langu
 
 ### serviceAccount
 
-**Invite the service account and grant it app permissions.** Every API call runs as the service account; without an invitation Play answers 403.
+**Invite the service account and grant it app permissions.** Every API call runs as the service account; without an invitation Play answers 403. Until the app's first review, it is a DRAFT app — store-listing edits also need 'Create, edit and delete draft apps'.
 
 URL: `https://play.google.com/console/u/0/developers/<dev>/users-and-permissions`
 
