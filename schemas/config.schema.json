@@ -167,6 +167,11 @@
           ]
         },
         "privacyPolicyUrl": { "type": "string", "format": "uri" },
+        "accountDeletionUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public page describing how users delete their account and data. Google fetches it from the Data safety form; a 404 there is a rejection risk."
+        },
         "appAccess": {
           "type": "object",
           "additionalProperties": false,

@@ -19,7 +19,7 @@ Replace `<dev>` and `<app>` with `config.console.developerId` and `config.consol
 | `contentRating` | Content rating questionnaire (IARC) | no — mark it in `console.done` | `console.contentRating` |
 | `targetAudience` | Target audience and content | no — mark it in `console.done` | `console.targetAudience` |
 | `news` | News app declaration | no — mark it in `console.done` | `console.containsNews` |
-| `dataSafety` | Data safety | no — mark it in `console.done` | `dataSafety.csvPath` |
+| `dataSafety` | Data safety | no — mark it in `console.done` | `dataSafety.csvPath`, `console.accountDeletionUrl` |
 | `government` | Government app declaration | no — mark it in `console.done` | `console.isGovernmentApp` |
 | `financialFeatures` | Financial features declaration | no — mark it in `console.done` | `console.financialFeatures` |
 | `health` | Health apps declaration | no — mark it in `console.done` | `console.healthApp` |

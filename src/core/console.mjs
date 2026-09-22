@@ -191,7 +191,7 @@ export const CONSOLE_STEPS = Object.freeze([
       "Submit",
       "then: Export to CSV",
     ],
-    configKeys: ["dataSafety.csvPath"],
+    configKeys: ["dataSafety.csvPath", "console.accountDeletionUrl"],
     detectable: false,
   },
   {
