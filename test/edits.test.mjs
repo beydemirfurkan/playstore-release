@@ -222,3 +222,23 @@ test("a 403 on commit for an app with no bundle is explained as the first-bundle
   assert.equal(mock.commits().length, 0);
   assert.equal(ctx.edit.id, null, "the edit is discarded after the diagnosis");
 });
+
+test("promote --draft creates a draft release, as a never-published app requires", async () => {
+  const { ctx, mock } = await ctxFor(
+    readyToPublishRoutes({
+      bundles: [{ versionCode: 7, sha1: "a" }],
+      tracks: [
+        { track: "internal", releases: [{ status: "completed", versionCodes: ["7"] }] },
+        { track: "production", releases: [] },
+      ],
+    }),
+  );
+  const res = await runOperation("promote", ctx, { from: "internal", to: "production", draft: true, force: true });
+  assert.equal(res.status, Status.CHANGED, res.message);
+  assert.match(res.message, /as a draft/);
+  const put = mock.writes().find((w) => w.method === "PUT");
+  assert.deepEqual(
+    put.body.releases.map((r) => [r.status, r.versionCodes[0], r.userFraction ?? null]),
+    [["draft", "7", null]],
+  );
+});

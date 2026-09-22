@@ -22,6 +22,12 @@ export const meta = {
     to: { type: "string", default: "production", description: "target track" },
     versionCode: { type: "number", description: "which bundle (default: the newest released on --from)" },
     userFraction: { type: "number", description: "staged rollout share, 0 < x < 1 (default: full release)" },
+    draft: {
+      type: "boolean",
+      default: false,
+      description:
+        "create the release as a draft — required for an app that has never been published; submit it afterwards from the Console's publishing overview",
+    },
     halt: { type: "boolean", default: false, description: "halt the in-progress rollout on --to" },
     resume: { type: "boolean", default: false, description: "resume a halted rollout on --to" },
     complete: { type: "boolean", default: false, description: "complete the in-progress rollout on --to" },
@@ -31,7 +37,7 @@ export const meta = {
 
 /**
  * @param {import("../core/context.mjs").Context} ctx
- * @param {{ from?: string, to?: string, versionCode?: number, userFraction?: number, halt?: boolean, resume?: boolean, complete?: boolean, force?: boolean }} [args]
+ * @param {{ from?: string, to?: string, versionCode?: number, userFraction?: number, draft?: boolean, halt?: boolean, resume?: boolean, complete?: boolean, force?: boolean }} [args]
  */
 export async function run(ctx, args = {}) {
   const { edit, config, dryRun } = ctx;
@@ -90,7 +96,9 @@ export async function run(ctx, args = {}) {
   }
   const versionCode = Math.max(...(sourceRelease.versionCodes ?? []).map(Number));
 
-  const status = args.userFraction != null ? "inProgress" : "completed";
+  // A never-published ("draft") app refuses any release that is not a draft:
+  // 400 "Only releases with status draft may be created on draft app".
+  const status = args.draft ? "draft" : args.userFraction != null ? "inProgress" : "completed";
   const wanted = desiredRelease({
     config,
     versionCode,
@@ -112,10 +120,11 @@ export async function run(ctx, args = {}) {
   await edit.put(`/tracks/${encodeURIComponent(to)}`, { track: to, releases: [wanted, ...kept] });
 
   const share = wanted.userFraction != null ? ` at ${Math.round(wanted.userFraction * 100)}%` : "";
+  const draftNote = args.draft ? " as a draft — submit it from the Console: Publishing overview → Send for review" : "";
   return {
     status: Status.CHANGED,
-    message: `${dryRun ? "would promote" : "promoted"} versionCode ${versionCode} from ${from} to ${to}${share}`,
-    details: { from, to, versionCode, release: wanted },
+    message: `${dryRun ? "would promote" : "promoted"} versionCode ${versionCode} from ${from} to ${to}${share}${draftNote}`,
+    details: { from, to, versionCode, release: wanted, draft: Boolean(args.draft) },
   };
 }
 

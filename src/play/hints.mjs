@@ -23,6 +23,22 @@ const RULES = [
       }),
   },
   {
+    test: /Only releases with status draft may be created on draft app/i,
+    hint: () =>
+      finding({
+        id: "track.draft-app",
+        category: Category.STORE_STATE,
+        title: "An app that has never been published only accepts draft releases",
+        detail:
+          "Play calls an app that has not completed its first review a draft app. Every release on it must have status " +
+          "draft; the first publication is then sent for review from the Console, not through the API.",
+        fixOwner: FixOwner.CLI,
+        fix: "Create the release as a draft, then send it for review in the Console (Publishing overview → Send for review).",
+        fixCommand: "playstore-release promote --to production --draft --yes",
+        docs: "references/gotchas.md#tracks-and-rollouts",
+      }),
+  },
+  {
     test: /feature graphic/i,
     hint: () =>
       finding({
@@ -144,8 +160,13 @@ export function withHints(error) {
     if (!error.hints.some((h) => h.id === hint.id)) error.hints.push(hint);
   }
   // A 403/404 with no recognised text still deserves the generic diagnosis.
-  if (!error.hints.length && error.status === 403) error.hints.push(RULES[3].hint(/** @type {any} */ ([]), error));
-  if (!error.hints.length && error.status === 404) error.hints.push(RULES[5].hint(/** @type {any} */ ([]), error));
+  // Looked up by the finding it produces, never by index: a new rule in the
+  // middle of the table used to silently repoint these.
+  const fallback = (id) => RULES.find((r) => r.hint(/** @type {any} */ ([]), error).id === id);
+  if (!error.hints.length && error.status === 403)
+    error.hints.push(fallback("account.permissions").hint(/** @type {any} */ ([]), error));
+  if (!error.hints.length && error.status === 404)
+    error.hints.push(fallback("app.missing").hint(/** @type {any} */ ([]), error));
   return error;
 }
 

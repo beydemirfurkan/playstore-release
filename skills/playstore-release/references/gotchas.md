@@ -59,6 +59,8 @@ See references/assets.md for the rules. In one line each:
 
 **`userFraction` is only valid with `inProgress`**, strictly between 0 and 1. A "100% staged" release is `completed`.
 
+**The first production release of a never-published app must be a draft.** `400 Only releases with status draft may be created on draft app` — Play treats an app that has not finished its first review as a _draft app_: `completed`/`inProgress` are refused on every track. Create it with `promote --to production --draft`, then submit the whole app for review from the Console (Publishing overview → _Send for review_); the API has no call for that first submission. From the second release on, the normal statuses work.
+
 **`completed` on production cannot be recalled.** You can `halt` an `inProgress` rollout, or ship a higher versionCode; you cannot un-release. This is why `promote` requires `--yes` and a `ready` verdict.
 
 **Review state is invisible to the API.** After the first production release the Console shows "In review" for hours to days; `tracks.get` shows the release with the status you set. Ask the user to look at the Console, or wait for the app to appear in the store.
