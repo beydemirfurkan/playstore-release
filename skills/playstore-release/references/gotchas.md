@@ -69,6 +69,8 @@ See references/assets.md for the rules. In one line each:
 
 ## Data safety
 
+**The account-deletion URL verdict is cached, and it blocks submission.** Google fetches the URL as you type it in the Data safety form _and_ again in the pre-submit "quick checks" on the publishing overview. A 404 seen once becomes a blocking issue there ("Hesap silme sayfası, 'Sayfa bulunamadı' hatası döndürüyor") and the _Send N changes for review_ button stays disabled — even after the page goes live. Re-saving the Data safety form clears the inline warning immediately, but the publishing-overview check only clears when it re-runs (the page says "at most 14 minutes"). Put the page up _before_ filling the form and this never happens.
+
 **The account-deletion URL is fetched by Google while you type it.** If the page 404s, the Console shows an inline warning ("Girdiğiniz URL, 404 yanıt kodu döndürdü … İnceleme sırasında erişilemezse uygulamanız reddedilebilir") and still lets you save — but a review with a dead link is a rejection waiting to happen. The page must be public, name the app or developer, spell out the deletion steps, and say which data is deleted and which is retained. Seen 2026-09-22: we shipped `/hesap-silme` on the marketing site in the same session for exactly this.
 
 **Data collection is answered per data type, in a modal per type.** After picking the types (step 3), step 4 opens one dialog per type: collected/shared, ephemeral or not, required or optional, and the purposes. A type left "Başlamadı" blocks the İleri button with no error text.
